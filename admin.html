@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>爭議款案件後台 — 遠東國際商業銀行</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --primary:#1a3a6b; --pl:#234e8f; --pu:#eef2f9;
+      --accent:#c8a84b;
+      --danger:#c0392b; --dl:#fdf3f2;
+      --success:#1e7e44; --sl:#eaf5ee;
+      --warn:#8a6000; --wl:#fef9ec; --wb:#f0d070;
+      --t:#1a1f2e; --t2:#4a5568; --mu:#8a96a8;
+      --bd:#dce3ef; --bg:#f0f3f9; --wh:#fff;
+      --sans:'Noto Sans TC',sans-serif;
+      --serif:'Noto Serif TC',serif;
+      --sh:0 1px 4px rgba(26,58,107,.08);
+      --shm:0 4px 16px rgba(26,58,107,.12);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:var(--sans);background:var(--bg);color:var(--t);font-size:14px;line-height:1.6;}
+    a{color:var(--primary);text-decoration:none;}
+
+    /* LAYOUT */
+    .admin-layout{display:flex;min-height:100vh;}
+    .sidebar{width:220px;background:var(--primary);flex-shrink:0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;}
+    .sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,.1);}
+    .sidebar-logo img{height:28px;filter:brightness(0) invert(1);display:block;}
+    .sidebar-logo span{display:block;font-size:11px;color:rgba(255,255,255,.5);margin-top:8px;letter-spacing:.04em;}
+    .sidebar-nav{padding:16px 0;flex:1;}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:11px 20px;font-size:13px;color:rgba(255,255,255,.7);cursor:pointer;transition:all .2s;}
+    .nav-item:hover,.nav-item.active{background:rgba(255,255,255,.1);color:#fff;}
+    .nav-item svg{flex-shrink:0;}
+    .sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.1);font-size:11.5px;color:rgba(255,255,255,.4);}
+
+    .main-area{flex:1;overflow:auto;}
+    .top-bar{background:var(--wh);border-bottom:1px solid var(--bd);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;box-shadow:var(--sh);}
+    .top-bar-title{font-family:var(--serif);font-size:17px;font-weight:700;color:var(--t);}
+    .top-bar-right{display:flex;align-items:center;gap:16px;font-size:13px;color:var(--mu);}
+    .admin-badge{background:var(--pu);color:var(--primary);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;letter-spacing:.04em;}
+
+    .content{padding:28px 32px;}
+
+    /* STATS */
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+    .stat-card{background:var(--wh);border:1px solid var(--bd);border-radius:10px;padding:20px 22px;box-shadow:var(--sh);}
+    .stat-label{font-size:12px;color:var(--mu);margin-bottom:6px;font-weight:500;letter-spacing:.03em;}
+    .stat-value{font-family:var(--serif);font-size:28px;font-weight:700;color:var(--t);}
+    .stat-card.s-processing .stat-value{color:var(--primary);}
+    .stat-card.s-return .stat-value{color:var(--warn);}
+    .stat-card.s-closed .stat-value{color:var(--success);}
+
+    /* FILTERS */
+    .filter-row{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+    .filter-btn{padding:7px 16px;border-radius:20px;border:1.5px solid var(--bd);background:var(--wh);font-size:12.5px;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all .2s;}
+    .filter-btn:hover{border-color:var(--primary);color:var(--primary);}
+    .filter-btn.active{background:var(--primary);border-color:var(--primary);color:#fff;}
+    .search-box{margin-left:auto;display:flex;align-items:center;gap:8px;background:var(--wh);border:1.5px solid var(--bd);border-radius:8px;padding:6px 12px;}
+    .search-box input{border:none;outline:none;font-size:13px;font-family:var(--sans);color:var(--t);width:200px;background:transparent;}
+    .search-box svg{color:var(--mu);}
+    .refresh-btn{padding:7px 14px;border-radius:8px;border:1.5px solid var(--bd);background:var(--wh);font-size:12.5px;color:var(--t2);cursor:pointer;font-family:var(--sans);display:flex;align-items:center;gap:6px;transition:all .2s;}
+    .refresh-btn:hover{border-color:var(--primary);color:var(--primary);}
+
+    /* CASE TABLE */
+    .case-table-wrap{background:var(--wh);border:1px solid var(--bd);border-radius:10px;box-shadow:var(--sh);overflow:hidden;}
+    .case-table{width:100%;border-collapse:collapse;}
+    .case-table th{background:#f8fafd;border-bottom:2px solid var(--bd);padding:12px 16px;text-align:left;font-size:12px;font-weight:600;color:var(--mu);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;}
+    .case-table td{padding:14px 16px;border-bottom:1px solid #f0f3f9;vertical-align:top;}
+    .case-table tr:last-child td{border-bottom:none;}
+    .case-table tr:hover td{background:#fafbfd;}
+
+    .cn-cell{font-family:var(--serif);font-size:13.5px;font-weight:700;color:var(--primary);}
+    .type-chip{font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;background:var(--pu);color:var(--primary);white-space:nowrap;}
+    .date-cell{font-size:12.5px;color:var(--mu);}
+
+    /* STATUS BADGES */
+    .s-badge{font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;}
+    .s-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;}
+    .s-pending{background:#f0f3f9;color:var(--mu);}
+    .s-submitted{background:var(--pu);color:var(--primary);}
+    .s-return{background:var(--wl);color:var(--warn);}
+    .s-closed{background:var(--sl);color:var(--success);}
+
+    /* SUMMARY CELL */
+    .summary-cell{font-size:13px;color:var(--t2);line-height:1.6;max-width:320px;}
+    .summary-loading{color:var(--mu);font-style:italic;font-size:12.5px;display:flex;align-items:center;gap:6px;}
+    .spinner{width:14px;height:14px;border:2px solid var(--bd);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .summary-text{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+    .summary-expand{font-size:12px;color:var(--primary);cursor:pointer;margin-top:4px;display:inline-block;}
+
+    /* ACTION BUTTONS */
+    .action-cell{display:flex;flex-direction:column;gap:6px;min-width:100px;}
+    .btn-action{padding:7px 12px;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;gap:5px;transition:all .18s;justify-content:center;white-space:nowrap;}
+    .btn-close{background:var(--sl);color:var(--success);}
+    .btn-close:hover{background:#d4eedd;}
+    .btn-return{background:var(--wl);color:var(--warn);}
+    .btn-return:hover{background:#fdf0b0;}
+    .btn-action:disabled{opacity:.45;cursor:not-allowed;}
+
+    /* EMPTY */
+    .empty-state{text-align:center;padding:60px 20px;color:var(--mu);}
+    .empty-state svg{margin-bottom:12px;opacity:.35;}
+    .empty-state p{font-size:13.5px;}
+
+    /* MODAL */
+    .modal-overlay{position:fixed;inset:0;background:rgba(10,20,50,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .25s;}
+    .modal-overlay.active{opacity:1;pointer-events:all;}
+    .modal-box{background:var(--wh);border-radius:14px;padding:32px;max-width:560px;width:100%;box-shadow:0 8px 32px rgba(26,58,107,.18);transform:translateY(16px);transition:transform .25s;}
+    .modal-overlay.active .modal-box{transform:translateY(0);}
+    .modal-title{font-family:var(--serif);font-size:18px;font-weight:700;margin-bottom:6px;}
+    .modal-sub{font-size:13px;color:var(--mu);margin-bottom:20px;}
+    .modal-case-info{background:var(--bg);border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:13px;}
+    .modal-case-info strong{color:var(--primary);}
+
+    /* RETURN FIELDS CHECKLIST */
+    .return-fields-list{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+    .return-field-item{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1.5px solid var(--bd);border-radius:8px;cursor:pointer;transition:border-color .18s;}
+    .return-field-item:hover{border-color:var(--primary);}
+    .return-field-item.selected{border-color:var(--primary);background:var(--pu);}
+    .return-field-item input{display:none;}
+    .return-field-cb{width:18px;height:18px;border:2px solid var(--bd);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .18s;background:#fff;}
+    .return-field-item.selected .return-field-cb{background:var(--primary);border-color:var(--primary);}
+    .return-field-item.selected .return-field-cb::after{content:'';width:10px;height:5px;border-left:2px solid white;border-bottom:2px solid white;transform:rotate(-45deg) translateY(-1px);display:block;}
+    .return-field-info strong{display:block;font-size:13.5px;font-weight:600;color:var(--t);}
+    .return-field-info span{font-size:12px;color:var(--mu);}
+
+    .modal-note-label{font-size:13px;font-weight:600;color:var(--t);margin-bottom:8px;}
+    .modal-note-input{width:100%;border:1.5px solid var(--bd);border-radius:8px;padding:10px 12px;font-size:13.5px;font-family:var(--sans);color:var(--t);resize:vertical;min-height:72px;outline:none;transition:border-color .18s;}
+    .modal-note-input:focus{border-color:var(--primary);}
+
+    .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;}
+    .btn-modal-cancel{padding:9px 20px;border:1.5px solid var(--bd);background:var(--wh);border-radius:8px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:var(--sans);color:var(--t2);transition:all .18s;}
+    .btn-modal-cancel:hover{border-color:var(--primary);color:var(--primary);}
+    .btn-modal-confirm{padding:9px 22px;background:var(--warn);border:none;border-radius:8px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:var(--sans);color:#fff;transition:background .18s;}
+    .btn-modal-confirm:hover{background:#7a5500;}
+    .btn-modal-confirm:disabled{background:#c0c8d8;cursor:not-allowed;}
+
+    /* DETAIL PANEL */
+    .detail-overlay{position:fixed;inset:0;background:rgba(10,20,50,.4);z-index:150;opacity:0;pointer-events:none;transition:opacity .25s;}
+    .detail-overlay.active{opacity:1;pointer-events:all;}
+    .detail-panel{position:fixed;top:0;right:0;bottom:0;width:520px;background:var(--wh);box-shadow:-4px 0 24px rgba(26,58,107,.14);transform:translateX(100%);transition:transform .28s;z-index:151;overflow-y:auto;display:flex;flex-direction:column;}
+    .detail-panel.active{transform:translateX(0);}
+    .detail-header{padding:24px 28px 20px;border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;position:sticky;top:0;background:var(--wh);z-index:5;}
+    .detail-header-left h2{font-family:var(--serif);font-size:18px;font-weight:700;color:var(--t);margin-bottom:4px;}
+    .detail-close{background:none;border:none;cursor:pointer;color:var(--mu);padding:4px;border-radius:6px;transition:color .2s;}
+    .detail-close:hover{color:var(--t);}
+    .detail-body{padding:24px 28px;flex:1;}
+    .detail-section{margin-bottom:24px;}
+    .detail-section-title{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--mu);font-weight:600;margin-bottom:12px;}
+    .detail-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .detail-info-item{background:var(--bg);border-radius:8px;padding:12px 14px;}
+    .dil{font-size:11px;color:var(--mu);margin-bottom:3px;}
+    .div{font-size:13.5px;font-weight:600;color:var(--t);}
+    .detail-summary-box{background:var(--bg);border-radius:8px;padding:16px;font-size:13.5px;line-height:1.8;color:var(--t2);}
+    .detail-files-list{display:flex;flex-direction:column;gap:6px;}
+    .detail-file-item{display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:6px;padding:8px 12px;font-size:12.5px;}
+    .detail-file-name{flex:1;color:var(--t);font-weight:500;}
+    .detail-file-size{color:var(--mu);}
+    .detail-actions{padding:20px 28px;border-top:1px solid var(--bd);display:flex;gap:10px;}
+    .btn-detail-action{flex:1;padding:11px;border-radius:8px;border:none;font-size:13.5px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:all .2s;}
+    .btn-detail-close{background:var(--sl);color:var(--success);}
+    .btn-detail-close:hover{background:#d4eedd;}
+    .btn-detail-return{background:var(--wl);color:var(--warn);}
+    .btn-detail-return:hover{background:#fdf0b0;}
+    .btn-detail-action:disabled{opacity:.45;cursor:not-allowed;}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:28px;right:28px;background:var(--t);color:#fff;padding:12px 20px;border-radius:10px;font-size:13.5px;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,.25);transform:translateY(20px);opacity:0;transition:all .3s;z-index:999;}
+    .toast.show{transform:translateY(0);opacity:1;}
+  </style>
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img src="https://www.newyorkdesign.com.tw/image/feib_logo.png" alt="遠東銀行"
+           onerror="this.style.display='none';document.getElementById('fallbackLogo').style.display='block'"/>
+      <span id="fallbackLogo" style="display:none;color:#fff;font-size:15px;font-weight:700;font-family:var(--serif);">遠東國際商業銀行</span>
+      <span>爭議款後台管理系統</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        案件總覽
+      </div>
+    </nav>
+    <div class="sidebar-footer">© 2026 遠東國際商業銀行</div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-area">
+    <div class="top-bar">
+      <span class="top-bar-title">信用卡爭議款案件管理</span>
+      <div class="top-bar-right">
+        <span class="admin-badge">經辦人員</span>
+        <span id="currentTime"></span>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- STATS -->
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-label">全部案件</div><div class="stat-value" id="statAll">0</div></div>
+        <div class="stat-card s-processing"><div class="stat-label">審核中</div><div class="stat-value" id="statProcessing">0</div></div>
+        <div class="stat-card s-return"><div class="stat-label">退補件</div><div class="stat-value" id="statReturn">0</div></div>
+        <div class="stat-card s-closed"><div class="stat-label">已結案</div><div class="stat-value" id="statClosed">0</div></div>
+      </div>
+
+      <!-- FILTERS -->
+      <div class="filter-row">
+        <button class="filter-btn active" data-filter="all">全部</button>
+        <button class="filter-btn" data-filter="submitted">審核中</button>
+        <button class="filter-btn" data-filter="return">退補件</button>
+        <button class="filter-btn" data-filter="closed">已結案</button>
+        <button class="filter-btn" data-filter="pending">待上傳</button>
+        <div class="search-box">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" placeholder="搜尋案件編號…"/>
+        </div>
+        <button class="refresh-btn" id="refreshBtn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          重新整理
+        </button>
+      </div>
+
+      <!-- TABLE -->
+      <div class="case-table-wrap">
+        <table class="case-table">
+          <thead>
+            <tr>
+              <th>案件編號</th>
+              <th>爭議款類型</th>
+              <th>狀態</th>
+              <th>送出時間</th>
+              <th>AI 摘要</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="caseTableBody"></tbody>
+        </table>
+        <div class="empty-state" id="emptyState" style="display:none;">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <p>目前沒有符合條件的案件</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- RETURN MODAL -->
+<div class="modal-overlay" id="returnModal">
+  <div class="modal-box">
+    <div class="modal-title">退補件 — 指定需重新上傳的文件</div>
+    <div class="modal-sub">請勾選客訴者需重新上傳的附件項目，並可附上說明。</div>
+    <div class="modal-case-info" id="modalCaseInfo"></div>
+    <div class="return-fields-list" id="returnFieldsList"></div>
+    <div class="modal-note-label">補件說明（選填）</div>
+    <textarea class="modal-note-input" id="returnNote" placeholder="例如：簽單照片不清晰，請重新拍照上傳。"></textarea>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" id="returnModalCancel">取消</button>
+      <button class="btn-modal-confirm" id="returnModalConfirm" disabled>確認退補件</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL PANEL -->
+<div class="detail-overlay" id="detailOverlay"></div>
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-header">
+    <div class="detail-header-left">
+      <h2 id="dpCaseNum"></h2>
+      <div id="dpStatusBadge"></div>
+    </div>
+    <button class="detail-close" id="detailClose">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="detail-body">
+    <div class="detail-section">
+      <div class="detail-section-title">案件資訊</div>
+      <div class="detail-info-grid" id="dpInfoGrid"></div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">AI 質檢摘要</div>
+      <div class="detail-summary-box" id="dpSummary"></div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">上傳文件清單</div>
+      <div class="detail-files-list" id="dpFilesList"></div>
+    </div>
+  </div>
+  <div class="detail-actions">
+    <button class="btn-detail-action btn-detail-return" id="dpReturnBtn">退補件</button>
+    <button class="btn-detail-action btn-detail-close" id="dpCloseBtn">結案</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="data.js"></script>
+<script>
+// ---- Time ----
+function updateTime() {
+  const d = new Date(), p = n => String(n).padStart(2,'0');
+  document.getElementById('currentTime').textContent =
+    `${d.getFullYear()}/${p(d.getMonth()+1)}/${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+setInterval(updateTime, 1000); updateTime();
+
+// ---- State ----
+let currentFilter = 'all';
+let searchQuery   = '';
+let returnTarget  = null;  // case record being returned
+let detailTarget  = null;  // case in detail panel
+
+// ---- Render ----
+function renderAll() {
+  const cases = getAllCases();
+
+  // Stats
+  document.getElementById('statAll').textContent        = cases.length;
+  document.getElementById('statProcessing').textContent = cases.filter(c => c.status === 'submitted').length;
+  document.getElementById('statReturn').textContent     = cases.filter(c => c.status === 'return').length;
+  document.getElementById('statClosed').textContent     = cases.filter(c => c.status === 'closed').length;
+
+  // Filter + search
+  let filtered = cases.filter(c => {
+    if (currentFilter !== 'all' && c.status !== currentFilter) return false;
+    if (searchQuery && !c.caseNum.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    return true;
+  });
+
+  // Sort: submitted first, then by submittedAt desc
+  filtered.sort((a, b) => {
+    const order = { submitted:0, return:1, pending:2, closed:3 };
+    if (order[a.status] !== order[b.status]) return order[a.status] - order[b.status];
+    return (b.submittedAt || '').localeCompare(a.submittedAt || '');
+  });
+
+  const tbody = document.getElementById('caseTableBody');
+  const empty = document.getElementById('emptyState');
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = filtered.map(c => {
+    const typeName = (DISPUTE_TYPES[c.type] || {}).name || '—';
+    const badge    = statusBadge(c.status);
+    const summary  = summaryCell(c);
+    const actions  = actionButtons(c);
+    return `
+      <tr data-case="${c.caseNum}" style="cursor:pointer;">
+        <td class="cn-cell">${c.caseNum}</td>
+        <td><span class="type-chip">${typeName}</span></td>
+        <td>${badge}</td>
+        <td class="date-cell">${c.submittedAt ? fmtDatetime(c.submittedAt) : '—'}</td>
+        <td class="summary-cell">${summary}</td>
+        <td class="action-cell">${actions}</td>
+      </tr>`;
+  }).join('');
+
+  // Row click → detail panel
+  tbody.querySelectorAll('tr[data-case]').forEach(row => {
+    row.addEventListener('click', e => {
+      if (e.target.closest('.btn-action')) return;
+      openDetail(row.dataset.case);
+    });
+  });
+
+  // Action button clicks
+  tbody.querySelectorAll('.btn-close-case').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); closeCase(btn.dataset.case); });
+  });
+  tbody.querySelectorAll('.btn-return-case').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); openReturnModal(btn.dataset.case); });
+  });
+}
+
+function statusBadge(status) {
+  const map = {
+    pending:   ['s-pending',   '待上傳'],
+    submitted: ['s-submitted', '審核中'],
+    return:    ['s-return',    '退補件'],
+    closed:    ['s-closed',    '已結案'],
+  };
+  const [cls, label] = map[status] || ['s-pending','—'];
+  return `<span class="s-badge ${cls}">${label}</span>`;
+}
+
+function summaryCell(c) {
+  if (c.status === 'pending') return '<span style="color:var(--mu);font-size:12.5px;">尚未送出</span>';
+  if (c.summaryStatus === 'loading' || (!c.summary && c.status !== 'pending')) {
+    return `<div class="summary-loading"><div class="spinner"></div>AI 分析中…</div>`;
+  }
+  if (!c.summary) return '<span style="color:var(--mu);font-size:12.5px;">—</span>';
+  const preview = c.summary.slice(0, 80) + (c.summary.length > 80 ? '…' : '');
+  return `<div class="summary-text" title="${c.summary.replace(/"/g,'&quot;')}">${preview}</div>`;
+}
+
+function actionButtons(c) {
+  const canAct = c.status === 'submitted' || c.status === 'return';
+  return `
+    <button class="btn-action btn-close btn-close-case" data-case="${c.caseNum}" ${!canAct ? 'disabled' : ''}>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>結案
+    </button>
+    <button class="btn-action btn-return btn-return-case" data-case="${c.caseNum}" ${!canAct ? 'disabled' : ''}>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.36"/></svg>退補件
+    </button>`;
+}
+
+// ---- Close Case ----
+function closeCase(caseNum) {
+  const rec = getCase(caseNum);
+  if (!rec || (rec.status !== 'submitted' && rec.status !== 'return')) return;
+  if (!confirm(`確定要結案案件 ${caseNum}？`)) return;
+  rec.status   = 'closed';
+  rec.closedAt = new Date().toISOString();
+  setCase(rec);
+  showToast('案件已結案');
+  renderAll();
+  if (detailTarget?.caseNum === caseNum) openDetail(caseNum);
+}
+
+// ---- Return Modal ----
+function openReturnModal(caseNum) {
+  returnTarget = getCase(caseNum);
+  if (!returnTarget) return;
+
+  const typeDef = DISPUTE_TYPES[returnTarget.type] || { attachments: [] };
+
+  document.getElementById('modalCaseInfo').innerHTML =
+    `案件編號：<strong>${returnTarget.caseNum}</strong>　爭議款類型：<strong>${(DISPUTE_TYPES[returnTarget.type]||{}).name||'—'}</strong>`;
+
+  // Build checklist: auth + all attachments
+  const allFields = [
+    { id: 'auth', name: '爭議款處理授權書', hint: '客訴者上傳的授權書' },
+    ...typeDef.attachments,
+  ];
+
+  const listEl = document.getElementById('returnFieldsList');
+  listEl.innerHTML = allFields.map(f => `
+    <label class="return-field-item" data-id="${f.id}">
+      <input type="checkbox" value="${f.id}"/>
+      <div class="return-field-cb"></div>
+      <div class="return-field-info">
+        <strong>${f.name}</strong>
+        <span>${f.hint || ''}</span>
+      </div>
+    </label>`).join('');
+
+  listEl.querySelectorAll('.return-field-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const cb = item.querySelector('input');
+      cb.checked = !cb.checked;
+      item.classList.toggle('selected', cb.checked);
+      updateReturnConfirmBtn();
+    });
+  });
+
+  document.getElementById('returnNote').value = '';
+  updateReturnConfirmBtn();
+  document.getElementById('returnModal').classList.add('active');
+}
+
+function updateReturnConfirmBtn() {
+  const anyChecked = document.querySelectorAll('#returnFieldsList input:checked').length > 0;
+  document.getElementById('returnModalConfirm').disabled = !anyChecked;
+}
+
+document.getElementById('returnModalCancel').addEventListener('click', () => {
+  document.getElementById('returnModal').classList.remove('active');
+  returnTarget = null;
+});
+
+document.getElementById('returnModalConfirm').addEventListener('click', () => {
+  if (!returnTarget) return;
+  const checked = [...document.querySelectorAll('#returnFieldsList input:checked')].map(cb => cb.value);
+  const note    = document.getElementById('returnNote').value.trim();
+
+  const rec = getCase(returnTarget.caseNum);
+  rec.status       = 'return';
+  rec.returnFields = checked;
+  rec.returnNote   = note;
+  setCase(rec);
+
+  document.getElementById('returnModal').classList.remove('active');
+  returnTarget = null;
+  showToast('已通知客訴者補件');
+  renderAll();
+  if (detailTarget?.caseNum === rec.caseNum) openDetail(rec.caseNum);
+});
+
+// ---- Detail Panel ----
+function openDetail(caseNum) {
+  detailTarget = getCase(caseNum);
+  if (!detailTarget) return;
+  const c = detailTarget;
+  const typeName = (DISPUTE_TYPES[c.type] || {}).name || '—';
+
+  document.getElementById('dpCaseNum').textContent  = c.caseNum;
+  document.getElementById('dpStatusBadge').innerHTML = statusBadge(c.status);
+
+  document.getElementById('dpInfoGrid').innerHTML = `
+    <div class="detail-info-item"><div class="dil">爭議款類型</div><div class="div">${typeName}</div></div>
+    <div class="detail-info-item"><div class="dil">送出時間</div><div class="div">${c.submittedAt ? fmtDatetime(c.submittedAt) : '—'}</div></div>
+    <div class="detail-info-item"><div class="dil">截止日期</div><div class="div">${c.deadline || '—'}</div></div>
+    <div class="detail-info-item"><div class="dil">結案時間</div><div class="div">${c.closedAt ? fmtDatetime(c.closedAt) : '—'}</div></div>
+  `;
+
+  // Summary
+  const summaryEl = document.getElementById('dpSummary');
+  if (c.summaryStatus === 'loading' || (!c.summary && c.status !== 'pending')) {
+    summaryEl.innerHTML = `<div class="summary-loading"><div class="spinner"></div>AI 質檢分析中，請稍候…</div>`;
+  } else if (c.summary) {
+    summaryEl.textContent = c.summary;
+  } else {
+    summaryEl.innerHTML = `<span style="color:var(--mu);">尚無摘要</span>`;
+  }
+
+  // Files
+  const filesEl = document.getElementById('dpFilesList');
+  const allFiles = c.files || {};
+  const allAtts = [
+    { id: 'auth', name: '爭議款處理授權書' },
+    ...(DISPUTE_TYPES[c.type]?.attachments || []),
+  ];
+  let fileHtml = '';
+  allAtts.forEach(att => {
+    const files = allFiles[att.id] || [];
+    if (files.length === 0) return;
+    files.forEach(f => {
+      fileHtml += `<div class="detail-file-item">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span class="detail-file-name">${f.name}</span>
+        <span style="font-size:11px;color:var(--mu);background:var(--pu);padding:1px 7px;border-radius:10px;">${att.name}</span>
+        <span class="detail-file-size">${fmt(f.size)}</span>
+      </div>`;
+    });
+  });
+  filesEl.innerHTML = fileHtml || '<span style="color:var(--mu);font-size:13px;">尚無上傳文件</span>';
+
+  // Action buttons
+  const canAct = c.status === 'submitted' || c.status === 'return';
+  document.getElementById('dpReturnBtn').disabled = !canAct;
+  document.getElementById('dpCloseBtn').disabled  = !canAct;
+
+  document.getElementById('detailOverlay').classList.add('active');
+  document.getElementById('detailPanel').classList.add('active');
+}
+
+document.getElementById('detailClose').addEventListener('click', closeDetail);
+document.getElementById('detailOverlay').addEventListener('click', closeDetail);
+function closeDetail() {
+  document.getElementById('detailOverlay').classList.remove('active');
+  document.getElementById('detailPanel').classList.remove('active');
+  detailTarget = null;
+}
+
+document.getElementById('dpCloseBtn').addEventListener('click', () => {
+  if (detailTarget) closeCase(detailTarget.caseNum);
+});
+document.getElementById('dpReturnBtn').addEventListener('click', () => {
+  if (detailTarget) {
+    closeDetail();
+    openReturnModal(detailTarget.caseNum);
+  }
+});
+
+// ---- Filters ----
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderAll();
+  });
+});
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchQuery = e.target.value;
+  renderAll();
+});
+
+document.getElementById('refreshBtn').addEventListener('click', () => {
+  renderAll();
+  showToast('已重新整理');
+});
+
+// ---- Toast ----
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ---- Demo seed data ----
+function seedDemoData() {
+  const db = dbLoad();
+  if (Object.keys(db).length > 0) return; // already has data
+
+  const demos = [
+    {
+      caseNum: 'FEIB-2026-0323-0042', type: 2, deadline: '2026/04/06',
+      status: 'submitted', submittedAt: new Date(Date.now()-3600000*2).toISOString(),
+      files: {
+        auth: [{name:'授權書_簽名.jpg', size:812430}],
+        nor_1:[{name:'聯繫紀錄_截圖.png', size:234000}],
+        nor_2:[{name:'訂單確認_20260320.pdf', size:1048576}],
+      },
+      summary: '客訴者於 2026 年 3 月 20 日透過電商平台向「樂購網」訂購 Nintendo Switch 遊戲機乙台，交易金額為新台幣 9,980 元，信用卡帳單已正常請款。然而商品訂購後已逾 14 日，客訴者多次透過 Email 及平台客服系統聯繫特店，均未獲回應，且物流追蹤系統顯示包裹從未出貨。客訴者提供訂單確認截圖及與特店往返之 Email 紀錄作為佐證，訂單編號為 LG-2026032001234，主張因商品未履約交貨，要求依 MasterCard 爭議款規範申請退刷。',
+      summaryStatus: 'done', returnFields: [], returnNote: '', closedAt: null, resubmittedAt: null,
+    },
+    {
+      caseNum: 'FEIB-2026-0318-0031', type: 3, deadline: '2026/04/03',
+      status: 'return', submittedAt: new Date(Date.now()-3600000*26).toISOString(),
+      files: {
+        auth: [{name:'授權書.pdf', size:542000}],
+        cls_1:[{name:'合約.pdf', size:1200000}],
+        cls_2:[{name:'EMAIL截圖.png', size:450000}],
+      },
+      summary: '客訴者於 2025 年 12 月 1 日與「活力健身中心」簽訂一年期健身課程合約，預付全年費用新台幣 36,000 元，交易以信用卡一次性扣款。然而健身中心於 2026 年 2 月 28 日突然停業，告示牌顯示因財務困難即日起歇業，客訴者尚有約 9 個月課程未使用。客訴者提供原始合約書及健身中心門口公告照片，並附上自行計算之剩餘課程金額佐證，合約編號 GYM-2025120001，主張商店無法提供已付費之服務，要求申請爭議款退刷。',
+      summaryStatus: 'done',
+      returnFields: ['cls_3'],
+      returnNote: '請補上課程剩餘證明文件，例如課程紀錄表或健身中心開立之剩餘課程說明。',
+      closedAt: null, resubmittedAt: null,
+    },
+    {
+      caseNum: 'FEIB-2026-0310-0019', type: 1, deadline: '2026/03/25',
+      status: 'closed', submittedAt: new Date(Date.now()-3600000*96).toISOString(),
+      closedAt: new Date(Date.now()-3600000*24).toISOString(),
+      files: {
+        auth: [{name:'授權書_掃描.pdf', size:670000}],
+        dup_1:[{name:'正確簽單.jpg', size:321000}],
+        dup_2:[{name:'與特店信件.pdf', size:489000}],
+      },
+      summary: '客訴者於 2026 年 3 月 5 日在「福客多便利商店」消費，單次交易金額應為新台幣 250 元，然信用卡帳單顯示同日遭請款兩筆相同金額，合計 500 元。客訴者保有當日消費之紙本簽單，確認僅消費一次，並已透過 Email 聯繫便利商店總部，對方書面確認確有重複請款之情形，同意配合爭議款申請程序。訂單編號 RC-2026030500127，客訴者提供簽單正本及特店往返確認信件作為佐證，要求申請重複請款差額退刷。',
+      summaryStatus: 'done', returnFields: [], returnNote: '', resubmittedAt: null,
+    },
+    {
+      caseNum: 'FEIB-2026-0322-0039', type: 5, deadline: '2026/04/06',
+      status: 'submitted', submittedAt: new Date(Date.now()-900000).toISOString(),
+      files: {
+        auth: [{name:'授權書.jpg', size:920000}],
+        amt_1:[{name:'簽單照片.jpg', size:310000}],
+        amt_2:[{name:'確認信.pdf', size:280000}],
+      },
+      summary: null, summaryStatus: 'loading', returnFields: [], returnNote: '', closedAt: null, resubmittedAt: null,
+    },
+  ];
+
+  demos.forEach(d => setCase(d));
+}
+
+// ---- Init ----
+seedDemoData();
+renderAll();
+
+// Auto-refresh every 8s to catch summary updates
+setInterval(() => {
+  renderAll();
+  if (detailTarget) {
+    const fresh = getCase(detailTarget.caseNum);
+    if (fresh && fresh.summaryStatus !== detailTarget.summaryStatus) {
+      detailTarget = fresh;
+      openDetail(fresh.caseNum);
+    }
+  }
+}, 8000);
+</script>
+</body>
+</html>
