@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>信用卡爭議款申請服務 — 遠東國際商業銀行</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <img src="https://www.newyorkdesign.com.tw/image/feib_logo.png" alt="遠東國際商業銀行" class="bank-logo" />
+      <div class="header-divider"></div>
+      <span class="header-subtitle">線上文件上傳服務</span>
+    </div>
+    <div class="header-right">
+      <div class="draft-status" id="draftStatus" style="display:none;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        <span id="draftStatusText">草稿已暫存</span>
+      </div>
+      <div class="secure-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        安全加密傳輸
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-accent-bar"></div>
+    <div class="container">
+      <h1 class="hero-title">信用卡爭議款申請服務</h1>
+      <div class="case-info-card">
+        <div class="case-info-row">
+          <div class="case-info-item">
+            <span class="case-label">案件編號</span>
+            <span class="case-value" id="caseNumber">FEIB-2026-0323-0042</span>
+          </div>
+          <div class="case-info-item">
+            <span class="case-label">爭議款類型</span>
+            <span class="case-value type-badge" id="disputeTypeBadge">訂購商品未收到</span>
+          </div>
+          <div class="case-info-item">
+            <span class="case-label">文件截止日期</span>
+            <span class="case-value deadline" id="deadline">2026 / 04 / 06</span>
+          </div>
+        </div>
+        <p class="hero-description">
+          我們已收到您來電申請，請提供相關資料以利我們為您向 VISA 或 MasterCard 以
+          <strong id="disputeTypeInline">訂購商品未收到</strong>
+          申請爭議款退刷。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Draft restored banner -->
+  <div class="draft-banner" id="draftBanner" style="display:none;">
+    <div class="container">
+      <div class="draft-banner-inner">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>已自動還原您上次的暫存紀錄，您可繼續上傳或補充文件。</span>
+        <button class="draft-clear-btn" id="clearDraftBtn">清除暫存</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="container main-content">
+
+    <div class="progress-tracker">
+      <div class="progress-step active" id="step1"><div class="step-circle">1</div><span>下載並簽署授權書</span></div>
+      <div class="progress-line"></div>
+      <div class="progress-step" id="step2"><div class="step-circle">2</div><span>上傳授權書</span></div>
+      <div class="progress-line"></div>
+      <div class="progress-step" id="step3"><div class="step-circle">3</div><span>上傳佐證附件</span></div>
+      <div class="progress-line"></div>
+      <div class="progress-step" id="step4"><div class="step-circle">4</div><span>送出申請</span></div>
+    </div>
+
+    <!-- SECTION A -->
+    <section class="upload-section" id="sectionA">
+      <div class="section-header">
+        <div class="section-number">A</div>
+        <div class="section-title-block">
+          <h2>爭議款處理授權書</h2>
+          <p class="section-desc">請先下載授權書，完成簽署後掃描或拍照上傳。</p>
+        </div>
+      </div>
+      <div class="auth-steps">
+        <div class="auth-step">
+          <div class="auth-step-num">1</div>
+          <div class="auth-step-content">
+            <p class="auth-step-title">下載空白授權書</p>
+            <p class="auth-step-hint">點擊下方按鈕下載 PDF 格式授權書</p>
+            <a href="#" class="btn-download" download>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              下載爭議款處理授權書
+            </a>
+          </div>
+        </div>
+        <div class="auth-step-divider"></div>
+        <div class="auth-step">
+          <div class="auth-step-num">2</div>
+          <div class="auth-step-content">
+            <p class="auth-step-title">親筆簽署</p>
+            <p class="auth-step-hint">請於授權書上親筆簽名，並確認所有欄位填寫完整。</p>
+          </div>
+        </div>
+        <div class="auth-step-divider"></div>
+        <div class="auth-step">
+          <div class="auth-step-num">3</div>
+          <div class="auth-step-content">
+            <p class="auth-step-title">掃描或拍照上傳</p>
+            <p class="auth-step-hint">請確保影像清晰、完整，支援 PDF、PNG、JPG，單檔不超過 10MB。</p>
+          </div>
+        </div>
+      </div>
+      <div class="upload-zone" id="uploadAuth" data-field="auth">
+        <div class="upload-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <p class="upload-main-text">拖曳檔案至此處，或<span class="upload-link">點擊選擇檔案</span></p>
+        <p class="upload-hint-text">支援 PDF、PNG、JPG，單檔不超過 10MB</p>
+        <input type="file" class="file-input" accept=".pdf,.png,.jpg,.jpeg" data-field="auth" />
+      </div>
+      <div class="file-list" id="fileList-auth"></div>
+      <div class="field-error" id="error-auth"></div>
+    </section>
+
+    <!-- SECTION B — two-column grid -->
+    <section class="upload-section" id="sectionB">
+      <div class="section-header">
+        <div class="section-number">B</div>
+        <div class="section-title-block">
+          <h2>佐證附件</h2>
+          <p class="section-desc">依據您的爭議款類型，請上傳以下相關文件。標示「必填」者為必要文件。</p>
+        </div>
+      </div>
+      <div class="attachment-grid" id="attachmentFields"></div>
+    </section>
+
+    <!-- SUBMIT -->
+    <section class="submit-section">
+      <div class="submit-progress-bar">
+        <div class="submit-progress-label">
+          <span>必填文件上傳進度</span>
+          <span id="progressText">0 / 0 項完成</span>
+        </div>
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <div class="submit-actions-row">
+        <button class="btn-save-draft" id="saveDraftBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          暫存草稿
+        </button>
+        <span class="save-hint" id="saveHint"></span>
+      </div>
+
+      <div class="confirm-row">
+        <label class="checkbox-label">
+          <input type="checkbox" id="confirmCheck" />
+          <span class="checkbox-custom"></span>
+          <span>本人確認所提供之資料均屬實，並同意銀行依相關規定進行後續處理。</span>
+        </label>
+      </div>
+      <button class="btn-submit" id="submitBtn" disabled>送出申請</button>
+    </section>
+
+  </main>
+
+  <!-- SUCCESS MODAL -->
+  <div class="modal-overlay" id="successModal">
+    <div class="modal-card">
+      <div class="modal-icon success-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h3>申請送出成功</h3>
+      <p>您的文件已成功送出，案件編號為 <strong id="modalCaseNum"></strong>。</p>
+      <p class="modal-sub">我們將於 5-7 個工作天內完成審核，並以 Email 或簡訊通知您結果。如有疑問，請電洽客服。</p>
+      <div class="modal-info-row">
+        <span>客服專線</span>
+        <strong>0800-888-168</strong>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>遠東國際商業銀行股份有限公司 &copy; 2026 All Rights Reserved.</p>
+      <div class="footer-links">
+        <a href="#">隱私權政策</a><span>|</span>
+        <a href="#">服務條款</a><span>|</span>
+        <a href="#">客服中心</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
